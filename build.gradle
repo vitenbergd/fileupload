@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'com.google.cloud.tools.jib' version '3.1.4'
+
+}
+
+group 'ru.vitenberg.fileupload'
+version '0.0.1'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.testng:testng:7.1.0'
+
+    // compile for fatJar target
+    compile 'io.javalin:javalin:3.13.10'
+    compile 'org.slf4j:slf4j-simple:1.7.30'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.10.5'
+    compile 'info.picocli:picocli:4.6.1'
+    annotationProcessor 'info.picocli:picocli-codegen:4.6.1'
+    testCompile 'org.assertj:assertj-core:3.11.1'
+    testCompile 'com.konghq:unirest-java:3.11.09'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'ru.vitenberg.fileupload.FileUpload'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+jib {
+    from {
+        image = 'gcr.io/distroless/java:11'
+    }
+}
